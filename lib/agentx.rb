@@ -2,6 +2,7 @@
 require 'agentx/version'
 
 require 'time'
+require 'uri'
 
 require 'ethon'
 require 'nokogiri'

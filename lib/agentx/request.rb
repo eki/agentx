@@ -61,7 +61,7 @@ module AgentX
     def cookies
       # TODO:  select only cookies that are relevant to this request
       unless @session.cookies.all.empty?
-        @session.cookies.all.map { |c| c.to_s }.join('; ')
+        @session.cookies.match(url).map { |c| c.to_s }.join('; ')
       end
     end
 
@@ -77,7 +77,7 @@ module AgentX
       response = Response.from_easy(easy)
       @session.history.add(self, response)
       response.cookies.each do |cookie|
-        @session.cookies.store(cookie)
+        @session.cookies.store(cookie, from: easy.url)
       end
       response.parse
     end
