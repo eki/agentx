@@ -23,7 +23,7 @@ module AgentX
     def parse
       case
         when headers.json? then Oj.load(body)
-        when headers.html? then Nokogiri::HTML(body)
+        when headers.html? then HTML.new(body)
                            else body
       end
     end
