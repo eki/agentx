@@ -2,11 +2,11 @@
 module AgentX
 
   class Session
-    attr_reader :history, :cookies
+    attr_reader :history, :jar
 
     def initialize
       @history = History.new
-      @cookies = CookieJar.new
+      @jar = HTTP::CookieJar.new
     end
 
     def [](url, params={})

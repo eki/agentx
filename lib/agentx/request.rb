@@ -58,17 +58,12 @@ module AgentX
 
     private
 
-    def cookies
-      # TODO:  select only cookies that are relevant to this request
-      unless @session.cookies.all.empty?
-        @session.cookies.match(url).map { |c| c.to_s }.join('; ')
-      end
-    end
-
     def http(verb, params=@params, body=@body, headers=@headers)
       @method = verb
 
-      headers.merge!('Cookie' => cookies) if cookies
+      if cookies = HTTP::Cookie.cookie_value(@session.jar.cookies(url))
+        headers.merge!('Cookie' => cookies)
+      end
 
       easy = Ethon::Easy.new
       easy.http_request(url, verb, 
@@ -77,7 +72,7 @@ module AgentX
       response = Response.from_easy(easy)
       @session.history.add(self, response)
       response.cookies.each do |cookie|
-        @session.cookies.store(cookie, from: easy.url)
+        @session.jar.parse(cookie, easy.url)
       end
       response.parse
     end

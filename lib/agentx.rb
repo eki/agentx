@@ -5,11 +5,12 @@ require 'time'
 require 'uri'
 
 require 'ethon'
+require 'http-cookie'
 require 'nokogiri'
 require 'oj'
 
 require 'agentx/history'
-require 'agentx/cookie_jar'
+#require 'agentx/cookie_jar'
 require 'agentx/html'
 require 'agentx/request'
 require 'agentx/response'
