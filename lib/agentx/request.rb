@@ -76,7 +76,12 @@ module AgentX
       response.cookies.each do |cookie|
         @session.jar.parse(cookie, easy.url)
       end
-      response.parse
+
+      if response.headers.location
+        @session[response.headers.location].get
+      else
+        response.parse
+      end
     end
   end
 

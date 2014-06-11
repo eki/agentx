@@ -89,6 +89,10 @@ module AgentX
       def set_cookie
         @normalized['set-cookie']
       end
+
+      def location
+        @normalized['location']
+      end
     end
   end
 
