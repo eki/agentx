@@ -61,12 +61,14 @@ module AgentX
     def http(verb, params=@params, body=@body, headers=@headers)
       @method = verb
 
-      if cookies = HTTP::Cookie.cookie_value(@session.jar.cookies(url))
+      full_url = url.start_with?('/') ? "#{@session.base_url}#{url}" : url
+
+      if cookies = HTTP::Cookie.cookie_value(@session.jar.cookies(full_url))
         headers.merge!('Cookie' => cookies)
       end
 
       easy = Ethon::Easy.new
-      easy.http_request(url, verb, 
+      easy.http_request(full_url, verb, 
         params: params, body: body, headers: headers)
       easy.perform
       response = Response.from_easy(easy)

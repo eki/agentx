@@ -4,9 +4,22 @@ module AgentX
   class Session
     attr_reader :history, :jar
 
-    def initialize
+    def initialize(base_url=nil)
       @history = History.new
       @jar = HTTP::CookieJar.new
+      @base_url = base_url
+    end
+
+    DEFAULT_PORT = { 'http' => 80, 'https' => 443 }
+
+    def base_url
+      if url = URI(@base_url || (history.last && history.last.request.url))
+        if url.port != DEFAULT_PORT[url.scheme]
+          "#{url.scheme}://#{url.host}:#{url.port}"
+        else
+          "#{url.scheme}://#{url.host}"
+        end
+      end
     end
 
     def [](url, params={})
