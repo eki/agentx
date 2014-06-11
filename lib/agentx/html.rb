@@ -37,6 +37,10 @@ module AgentX
     def to_nokogiri
       @html
     end
+
+    def text
+      @html.text
+    end
   end
 
 end
