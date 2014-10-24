@@ -4,9 +4,10 @@ module AgentX
   class Session
     attr_reader :history, :jar
 
-    def initialize(base_url=nil)
+    def initialize(base_url=nil, opts={})
       @history = History.new
-      @jar = HTTP::CookieJar.new
+      path = File.join(AgentX.root, opts[:cookie_store] || 'cookies.sqlite')
+      @jar = HTTP::CookieJar.new(store: :mozilla, filename: path)
       @base_url = base_url
     end
 

@@ -24,5 +24,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'http-cookie'
   spec.add_dependency 'nokogiri'
   spec.add_dependency 'oj'
+  spec.add_dependency 'sqlite3'
 end
 
