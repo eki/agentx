@@ -38,6 +38,11 @@ module AgentX
       end
     end
 
+    def head(params={})
+      params(params)
+      http(:head)
+    end
+
     def get(params={})
       params(params)
       http(:get)
