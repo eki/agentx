@@ -20,11 +20,22 @@ module AgentX
       "(Response #{code})"
     end
 
-    def parse
+    def to_hash
+      { 'code'    => code,
+        'body'    => body,
+        'headers' => headers.to_hash }
+    end
+
+    def self.from_hash(h)
+      new(h['code'], h['body'], h['headers'])
+    end
+
+    def parse(type=nil)
       case
-        when headers.json? then Oj.load(body)
-        when headers.html? then HTML.new(body)
-                           else body
+        when type == :json || headers.json? then Oj.load(body)
+        when type == :html || headers.html? then HTML.new(body)
+        when type == :xml  || headers.xml?  then XML.new(body)
+                                            else body
       end
     end
 
@@ -38,6 +49,8 @@ module AgentX
       end
 
       def self.parse(str)
+        return new(str) if str.kind_of?(Hash)
+
         hash = {}
 
         str.lines.each do |line|
@@ -73,11 +86,15 @@ module AgentX
       end
 
       def json?
-        content_type.downcase['json']
+        content_type.to_s.downcase['json']
       end
 
       def html?
-        content_type.downcase['html']
+        content_type.to_s.downcase['html']
+      end
+
+      def xml?
+        content_type.to_s.downcase['xml']
       end
 
       def content_length
@@ -92,6 +109,10 @@ module AgentX
 
       def location
         @normalized['location']
+      end
+
+      def to_hash
+        @hash
       end
     end
   end

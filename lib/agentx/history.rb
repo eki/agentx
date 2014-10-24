@@ -2,6 +2,8 @@
 module AgentX
 
   class History
+    include Enumerable
+
     def initialize
       @entries = []
     end
@@ -24,6 +26,10 @@ module AgentX
 
     def length
       @entries.length
+    end
+
+    def each(&block)
+      @entries.each(&block)
     end
 
     class Entry
