@@ -8,8 +8,16 @@ module AgentX
       @code, @body, @headers = code, body, Headers.parse(headers)
     end
 
-    def self.from_easy(easy)
-      new(easy.response_code, easy.response_body, easy.response_headers)
+    def self.from_easy(easy, response=nil)
+      headers = Headers.parse(easy.response_headers)
+
+      r = new(easy.response_code, easy.response_body, headers)
+
+      if response && r.not_modified?
+        r = new(r.code, response.body, response.headers.merge(r.headers))
+      end
+
+      r
     end
 
     def cookies
@@ -74,6 +82,7 @@ module AgentX
 
       def self.parse(str)
         return new(str) if str.kind_of?(Hash)
+        return str      if str.kind_of?(Headers)
 
         hash = {}
 
@@ -92,6 +101,10 @@ module AgentX
         end
 
         new(hash)
+      end
+
+      def merge(headers)
+        Headers.new(to_hash.merge(headers.to_hash))
       end
 
       def inspect
@@ -126,7 +139,7 @@ module AgentX
 
       def max_age
         (cache_control && 
-         cache_control.shared_max_age || cache_control.max_age) ||
+         (cache_control.shared_max_age || cache_control.max_age)) ||
         (expires && (expires - Time.now))
       end
 

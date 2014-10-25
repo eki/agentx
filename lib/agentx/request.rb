@@ -53,16 +53,8 @@ module AgentX
       http(:post)
     end
 
-    # Use the (simple / overly aggressive) cache for this request.
-
-    def cache
-      @cache = true
-
-      self
-    end
-
-    def cache?
-      @cache
+    def cacheable?
+      method == 'GET' || method == 'HEAD'
     end
 
     # Force: parse response as json (normally type is determined by correctly
@@ -112,16 +104,27 @@ module AgentX
         headers.merge!('Cookie' => cookies)
       end
 
-      unless cache? && (response = Cache.read(self))
-        puts "making actual request"
+      response = nil
+
+      if cacheable? && (response = Cache.read(self))
+        if response.fresh?
+          puts "cache fresh"
+        else
+          puts "cache validate"
+          response = validate(response)
+        end
+      end
+
+      unless response
+        puts "cache miss"
         easy = Ethon::Easy.new
-        easy.http_request(full_url, verb, 
+        easy.http_request(full_url, method, 
           params: params, body: body, headers: headers)
         unless easy.perform == :ok
           raise "Error: #{easy.return_code}"
         end
         response = Response.from_easy(easy)
-        Cache.write(self, response) if cache?
+        Cache.write(self, response) if cacheable? && response.cacheable?
       end
 
       @session.history.add(self, response)
@@ -134,6 +137,32 @@ module AgentX
       else
         response.parse(json? ? :json : nil)
       end
+    end
+
+    def validate(response)
+      if response.headers.last_modified
+        puts "add last_modified"
+        @headers['If-Modified-Since'] = response.headers.last_modified
+      end
+
+      if response.headers.etag
+        puts "add etag"
+        @headers['If-None-Match'] = response.headers.etag
+      end
+
+      puts "added headers: #{headers}"
+
+      easy = Ethon::Easy.new
+      easy.http_request(full_url, method, 
+        params: params, body: body, headers: headers)
+      unless easy.perform == :ok
+        raise "Error: #{easy.return_code}"
+      end
+      response = Response.from_easy(easy, response)
+
+      Cache.write(self, response) if cacheable? && response.cacheable?
+
+      response
     end
   end
 
