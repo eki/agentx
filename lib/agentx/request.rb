@@ -61,13 +61,33 @@ module AgentX
     # set headers.
 
     def json
-      @json = true
+      @parse_type = :json
 
       self
     end
 
     def json?
-      @json
+      @parse_type == :json
+    end
+
+    def html
+      @parse_type = :html
+
+      self
+    end
+
+    def html?
+      @parse_type == :html
+    end
+
+    def xml
+      @parse_type = :xml
+
+      self
+    end
+
+    def xml?
+      @parse_type == :xml
     end
 
     def inspect
@@ -117,14 +137,7 @@ module AgentX
 
       unless response
         puts "cache miss"
-        easy = Ethon::Easy.new
-        easy.http_request(full_url, method, 
-          params: params, body: body, headers: headers)
-        unless easy.perform == :ok
-          raise "Error: #{easy.return_code}"
-        end
-        response = Response.from_easy(easy)
-        Cache.write(self, response) if cacheable? && response.cacheable?
+        response = response_from_easy
       end
 
       @session.history.add(self, response)
@@ -135,36 +148,39 @@ module AgentX
       if response.headers.location
         @session[response.headers.location].get
       else
-        response.parse(json? ? :json : nil)
+        response.parse(@parse_type)
       end
     end
 
     def validate(response)
       if response.headers.last_modified
-        puts "add last_modified"
         @headers['If-Modified-Since'] = response.headers.last_modified
       end
 
       if response.headers.etag
-        puts "add etag"
         @headers['If-None-Match'] = response.headers.etag
       end
 
-      puts "added headers: #{headers}"
+      response_from_easy(response)
+    end
 
+    def response_from_easy(response=nil)
       easy = Ethon::Easy.new
+
       easy.http_request(full_url, method, 
         params: params, body: body, headers: headers)
+
       unless easy.perform == :ok
         raise "Error: #{easy.return_code}"
       end
-      response = Response.from_easy(easy, response)
 
-      Cache.write(self, response) if cacheable? && response.cacheable?
+      r = Response.from_easy(easy, response)
 
-      response
+      Cache.write(self, r) if cacheable? && r.cacheable?
+
+      r
     end
-  end
 
+  end
 end
 
