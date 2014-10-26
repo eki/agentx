@@ -14,7 +14,7 @@ module AgentX
       r = new(easy.response_code, easy.response_body, headers)
 
       if response && r.not_modified?
-        r = new(r.code, response.body, response.headers.merge(r.headers))
+        r = new(response.code, response.body, response.headers.merge(r.headers))
       end
 
       r
