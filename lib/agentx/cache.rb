@@ -18,10 +18,8 @@ module AgentX
     end
 
     def self.write(request, response)
-      if response.code == 200
-        open(path(request), 'w') do |f|
-          f.puts(Oj.dump(response.to_hash, mode: :strict))
-        end
+      open(path(request), 'w') do |f|
+        f.puts(Oj.dump(response.to_hash, mode: :strict))
       end
     end
 
