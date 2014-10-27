@@ -36,6 +36,10 @@ module AgentX
       headers.ttl && headers.ttl > 0
     end
 
+    def expires_at
+      headers.ttl ? Time.now + headers.ttl : Time.at(0)
+    end
+
     CACHEABLE_CODES = [200, 203, 300, 301, 302, 404, 410]
 
     def cacheable?

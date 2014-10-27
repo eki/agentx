@@ -9,6 +9,7 @@ require 'ethon'
 require 'http-cookie'
 require 'nokogiri'
 require 'oj'
+require 'sqlite3'
 
 require 'agentx/history'
 #require 'agentx/cookie_jar'

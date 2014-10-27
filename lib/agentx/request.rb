@@ -98,16 +98,26 @@ module AgentX
       end
     end
 
-    def full_url
-      url.start_with?('/') ? "#{@session.base_url}#{url}" : url
+    def host
+      uri.host
     end
 
-    def to_hash
-      { 'url'     => full_url, 
-        'method'  => method,
-        'body'    => body, 
-        'headers' => headers,
-        'params'  => params }
+    def scheme
+      uri.scheme
+    end
+
+    def port
+      uri.port
+    end
+
+    def base_url
+      return @session.base_url if @session.base_url
+
+      if uri.port != AgentX::Session::DEFAULT_PORT[uri.scheme]
+        "#{uri.scheme}://#{uri.host}:#{uri.port}"
+      else
+        "#{uri.scheme}://#{uri.host}"
+      end
     end
 
     def cache_key
@@ -179,6 +189,14 @@ module AgentX
       Cache.write(self, r) if cacheable? && r.cacheable?
 
       r
+    end
+
+    def full_url
+      url.start_with?('/') ? "#{@session.base_url}#{url}" : url
+    end
+
+    def uri
+      @uri ||= URI(full_url)
     end
 
   end
