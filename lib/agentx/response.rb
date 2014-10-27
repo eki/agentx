@@ -245,7 +245,7 @@ module AgentX
         def self.parse(s)
           h = {}
 
-          s.gsub(' ', '').split(',').each do |p|
+          Array(s).join(',').gsub(' ', '').split(',').each do |p|
             k, v = p.split('=')
 
             h[k.downcase] = (v || true)
