@@ -11,11 +11,11 @@ module AgentX
       @body = {}
     end
 
-    def headers(headers=nil)
+    def headers(headers={})
       if @method
         @headers
       else
-        @headers.merge!(headers) if headers
+        headers.each { |k,v| set_header(k, v) }
         self
       end
     end
@@ -139,6 +139,44 @@ module AgentX
 
     private
 
+    HEADER_MAP = {
+      accept:              'Accept',
+      accept_charset:      'Accept-Charset',
+      accept_encoding:     'Accept-Encoding',
+      accept_language:     'Accept-Language',
+      accept_datetime:     'Accept-Datetime',
+      authorization:       'Authorization',
+      cache_control:       'Cache-Control',
+      connection:          'Connection',
+      cookie:              'Cookie',
+      content_length:      'Content-Length',
+      date:                'Date',
+      expect:              'Expect',
+      from:                'From',
+      host:                'Host',
+      if_match:            'If-Match',
+      if_modified_since:   'If-Modified-Since',
+      if_none_match:       'If-None-Match',
+      if_range:            'If-Range',
+      if_unmodified_since: 'If-Unmodified-Since',
+      max_forwards:        'Max-Forwards',
+      origin:              'Origin',
+      pragma:              'Pragma',
+      proxy_authorization: 'Proxy-Authorization',
+      range:               'Range',
+      referer:             'Referer',
+      referrer:            'Referer',
+      te:                  'TE',
+      user_agent:          'User-Agent',
+      upgrade:             'Upgrade',
+      via:                 'Via',
+      warning:             'Warning'
+    }
+
+    def set_header(k, v)
+      @headers[HEADER_MAP[k] || k.to_s] = v
+    end
+
     def http(*args)
       r = nil
       time(:http_request) do
@@ -156,7 +194,7 @@ module AgentX
       @method = verb.to_s.upcase
 
       if cookies = HTTP::Cookie.cookie_value(@session.jar.cookies(full_url))
-        headers.merge!('Cookie' => cookies)
+        set_header(:cookie, cookies)
       end
 
       response = nil
@@ -189,11 +227,11 @@ module AgentX
 
     def validate(response)
       if response.headers.last_modified
-        @headers['If-Modified-Since'] = response.headers.last_modified
+        set_header(:if_modified_since, response.headers.last_modified)
       end
 
       if response.headers.etag
-        @headers['If-None-Match'] = response.headers.etag
+        set_header(:if_none_match, response.headers.etag)
       end
 
       response_from_easy(response)
