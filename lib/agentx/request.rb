@@ -201,15 +201,15 @@ module AgentX
 
       if cacheable? && (response = Cache.read(self))
         if response.fresh?
-          puts "cache fresh"
+          AgentX.logger.debug("cache fresh")
         else
-          puts "cache validate"
+          AgentX.logger.debug("cache validate")
           response = validate(response)
         end
       end
 
       unless response
-        puts "cache miss"
+        AgentX.logger.debug("cache miss")
         response = response_from_easy
       end
 
