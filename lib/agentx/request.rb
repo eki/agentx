@@ -125,9 +125,34 @@ module AgentX
       Digest::MD5.hexdigest(Oj.dump(k, mode: :compat))
     end
 
+    def timings
+      ts = {}
+      (@times || {}).each do |k,v|
+        ts[k] = "#{'%.2f' % (v * 1000)}ms"
+      end
+      ts
+    end
+
+    def request_time
+      timings[:http_request]
+    end
+
     private
 
-    def http(verb, params=@params, body=@body, headers=@headers)
+    def http(*args)
+      r = nil
+      time(:http_request) do
+        r = untimed_http(*args)
+      end
+      AgentX.logger.info([
+        request_time, 
+        @session.history.last.response.code,
+        method, 
+        full_url].join(' '))
+      r
+    end
+
+    def untimed_http(verb, params=@params, body=@body, headers=@headers)
       @method = verb.to_s.upcase
 
       if cookies = HTTP::Cookie.cookie_value(@session.jar.cookies(full_url))
@@ -197,6 +222,14 @@ module AgentX
 
     def uri
       @uri ||= URI(full_url)
+    end
+
+    def time(name)
+      @times ||= {}
+      start = Time.now
+      r = yield
+      @times[name] = Time.now - start
+      r
     end
 
   end

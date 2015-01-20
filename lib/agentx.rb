@@ -38,5 +38,17 @@ module AgentX
   def self.[](*args)
     session[*args]
   end
+
+  def self.logger
+    return @logger if @logger
+
+    @logger = Logger.new(File.join(root, 'request.log'))
+
+    @logger.formatter = proc do |severity, datetime, progname, msg|
+      "#{datetime} | #{msg}\n"
+    end
+
+    @logger
+  end
 end
 
