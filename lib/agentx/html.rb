@@ -48,6 +48,17 @@ module AgentX
       @html[attr.to_s]
     end
 
+    def form_to_hash(opts={})
+      h = {}
+      all('input').each do |input|
+        h[input['name']] = input['value']
+      end
+      opts.each do |k,v|
+        h[k.to_s] = v
+      end
+      h
+    end
+
     def to_s
       to_html
     end
