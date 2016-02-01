@@ -9,6 +9,7 @@ module AgentX
       path = File.join(AgentX.root, opts[:cookie_store] || 'cookies.sqlite')
       @jar = HTTP::CookieJar.new(store: :mozilla, filename: path)
       @base_url = base_url
+      @headers = {}
     end
 
     DEFAULT_PORT = { 'http' => 80, 'https' => 443 }
@@ -23,6 +24,23 @@ module AgentX
       end
     end
 
+    def relative_base_url
+      if history.last
+        uri = URI(history.last.request.full_url)
+        path = uri.path.split('/')
+        path.pop
+
+        URI.join(uri, path.empty? ? '/' : path.join)
+      else
+        base_url
+      end
+    end
+
+    def headers(headers={})
+      headers.each { |k,v| set_header(k, v) }
+      @headers
+    end
+
     def [](url, params={})
       Request.new(self, url, params)   
     end
@@ -31,6 +49,45 @@ module AgentX
       "(Session)"
     end
 
+    private
+
+    HEADER_MAP = {
+      accept:              'Accept',
+      accept_charset:      'Accept-Charset',
+      accept_encoding:     'Accept-Encoding',
+      accept_language:     'Accept-Language',
+      accept_datetime:     'Accept-Datetime',
+      authorization:       'Authorization',
+      cache_control:       'Cache-Control',
+      connection:          'Connection',
+      cookie:              'Cookie',
+      content_length:      'Content-Length',
+      date:                'Date',
+      expect:              'Expect',
+      from:                'From',
+      host:                'Host',
+      if_match:            'If-Match',
+      if_modified_since:   'If-Modified-Since',
+      if_none_match:       'If-None-Match',
+      if_range:            'If-Range',
+      if_unmodified_since: 'If-Unmodified-Since',
+      max_forwards:        'Max-Forwards',
+      origin:              'Origin',
+      pragma:              'Pragma',
+      proxy_authorization: 'Proxy-Authorization',
+      range:               'Range',
+      referer:             'Referer',
+      referrer:            'Referer',
+      te:                  'TE',
+      user_agent:          'User-Agent',
+      upgrade:             'Upgrade',
+      via:                 'Via',
+      warning:             'Warning'
+    }
+
+    def set_header(k, v)
+      @headers[HEADER_MAP[k] || k.to_s] = v
+    end
   end
 
 end

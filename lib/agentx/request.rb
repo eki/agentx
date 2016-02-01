@@ -7,7 +7,7 @@ module AgentX
     def initialize(session, url, params={})
       @session = session
       @url, @params = url, params
-      @headers = {}
+      @headers = session.headers
       @body = {}
     end
 
@@ -51,6 +51,11 @@ module AgentX
     def post(body={})
       body(body)
       http(:post)
+    end
+
+    def put(body={})
+      body(body)
+      http(:put)
     end
 
     def cacheable?
@@ -117,6 +122,16 @@ module AgentX
         "#{uri.scheme}://#{uri.host}:#{uri.port}"
       else
         "#{uri.scheme}://#{uri.host}"
+      end
+    end
+
+    def full_url
+      @full_url ||= case
+        when url.start_with?('/')
+          "#{@session.base_url}#{url}" 
+        when url.start_with?('http://', 'https://') 
+          url
+        else "#{@session.relative_base_url}#{url}"
       end
     end
 
@@ -240,6 +255,8 @@ module AgentX
     def response_from_easy(response=nil)
       easy = Ethon::Easy.new
 
+      AgentX.logger.info("easy: #{method} #{full_url}")
+
       easy.http_request(full_url, method, 
         params: params, body: body, headers: headers)
 
@@ -252,10 +269,6 @@ module AgentX
       Cache.write(self, r) if cacheable? && r.cacheable?
 
       r
-    end
-
-    def full_url
-      url.start_with?('/') ? "#{@session.base_url}#{url}" : url
     end
 
     def uri
