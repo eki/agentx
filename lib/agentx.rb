@@ -12,7 +12,6 @@ require 'oj'
 require 'sqlite3'
 
 require 'agentx/history'
-#require 'agentx/cookie_jar'
 require 'agentx/html'
 require 'agentx/xml'
 require 'agentx/request'
