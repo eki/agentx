@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = AgentX::VERSION
   spec.authors       = ["Eric K Idema"]
   spec.email         = ["eki@vying.org"]
-  spec.summary       = %q{...}
-  spec.description   = %q{...}
-  spec.homepage      = ""
+  spec.summary       = %q{A tool for doing things on the Internet.}
+  spec.description   = %q{A tool for doing things on the Internet.}
+  spec.homepage      = "https://github.com/eki/agentx"
 
   spec.files         = `git ls-files -z`.split("\x0")
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
