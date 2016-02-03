@@ -4,6 +4,7 @@ require 'agentx/version'
 require 'digest/md5'
 require 'time'
 require 'uri'
+require 'yaml'
 
 require 'ethon'
 require 'http-cookie'

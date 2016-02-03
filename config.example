@@ -6,6 +6,7 @@
 #
 #   load_config - (Re)loads this config file, if it's been changed.
 #   options     - The command-line options agentx was run with.
+#   credentials - The content of ~/.agentx/credentials.yml (or .json)
 #
 
 # Example of defining a session for quick use:
