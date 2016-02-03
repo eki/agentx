@@ -11,13 +11,14 @@ require 'nokogiri'
 require 'oj'
 require 'sqlite3'
 
-require 'agentx/history'
 require 'agentx/html'
 require 'agentx/xml'
-require 'agentx/request'
-require 'agentx/response'
-require 'agentx/cache'
-require 'agentx/session'
+
+require 'agentx/http/history'
+require 'agentx/http/request'
+require 'agentx/http/response'
+require 'agentx/http/cache'
+require 'agentx/http/session'
 
 module AgentX
   def self.root
@@ -31,7 +32,7 @@ module AgentX
   end
 
   def self.session
-    @session ||= Session.new
+    @session ||= Http::Session.new
   end
 
   def self.[](*args)
