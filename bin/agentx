@@ -1,0 +1,106 @@
+#!/usr/bin/env ruby
+
+require 'agentx'
+require 'agentx/console'
+require 'fileutils'
+require 'listen'
+require 'optparse'
+
+options={}
+
+option_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: agentx [OPTION] [FILE]"
+
+  opts.on('-h', '--help', 'This help message') do
+    puts opts
+    puts <<-eos
+
+If no FILE is provided, an interactive session will be started.  The 
+--interactive flag is only needed if you would like to execute a file and then 
+enter an interactive session.
+
+All file arguments should be valid Ruby.  Files will be executed in the order 
+provided at the command-line.
+
+By default a config file is located at ~/.agentx/config and should be valid
+Ruby.  This config file will be executed before any FILE arguements.  The
+default config is an empty file.
+
+    eos
+    exit
+  end
+
+  opts.on('-c', '--config [FILE]', 'Use given config file.') do |v|
+    options[:config] = v
+  end
+
+  opts.on('-i', '--interactive', 'Run an interactive console.') do
+    options[:interactive] = true
+  end
+
+  opts.on('-v', '--version', 'Print the version and exit.') do
+    puts "agentx version #{AgentX::VERSION}"
+    exit
+  end
+end
+
+option_parser.parse!
+
+console = AgentX::Console.new(options)
+console.load_config
+
+files = ARGV.map { |f| File.expand_path(f) }.select { |f| File.exists?(f) }
+
+if files.any?
+  files.each { |f| AgentX::Console.load(f) }
+else
+  options[:interactive] = true
+end
+
+if options[:interactive]
+  config_dir  = File.dirname(options[:config])
+  config_file = File.basename(options[:config])
+
+  listener = Listen.to(config_dir, only: /^#{config_file}$/) do |m,a,r|
+    console.load_config
+  end
+
+  listener.start
+
+  ARGV.clear
+
+  require 'irb'
+
+  IRB.init_config(nil)
+
+  IRB.conf[:AUTO_INDENT] = true
+  IRB.conf[:PROMPT_MODE] = :SIMPLE
+
+  IRB.conf[:SAVE_HISTORY] = 100
+  IRB.conf[:HISTORY_FILE] = "#{AgentX.root}/console.log"
+  IRB.conf[:MAIN_CONTEXT] = IRB::Irb.new.context
+
+  IRB.load_modules
+
+  require 'irb/ext/save-history'
+  require 'irb/completion'
+
+  workspace = IRB::WorkSpace.new(console)
+  irb = IRB::Irb.new(workspace)
+
+  trap("SIGINT") do
+    catch(:IRB_EXIT) do
+      irb.signal_handle
+    end
+  end
+
+  begin
+    catch(:IRB_EXIT) do
+      irb.eval_input
+    end
+  ensure
+    IRB.irb_at_exit
+    listener.stop
+  end
+end
+

@@ -1,0 +1,16 @@
+# AgentX Example Config
+
+# This file is plain Ruby.  Any methods you may define are available at the
+# top-level of the console and are loaded before any file you may execute.
+# Already defined:
+#
+#   load_config - (Re)loads this config file, if it's been changed.
+#   options     - The command-line options agentx was run with.
+#
+
+# Example of defining a session for quick use:
+
+# def session
+#   @session ||= AgentX::Session.new('https://www.google.com')
+# end
+
