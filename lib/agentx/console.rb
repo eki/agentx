@@ -36,6 +36,7 @@ module AgentX
       else
         @credentials = {}
         File.open(yaml, 'w') { |f| f.write(@credentials.to_yaml) }
+        FileUtils.chmod(0600, yaml)
       end
 
       @credentials
