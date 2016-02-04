@@ -1,6 +1,6 @@
 
 module AgentX
-  module Http
+  module Web
 
     class Session
       attr_reader :history, :jar

@@ -15,11 +15,11 @@ require 'sqlite3'
 require 'agentx/html'
 require 'agentx/xml'
 
-require 'agentx/http/history'
-require 'agentx/http/request'
-require 'agentx/http/response'
-require 'agentx/http/cache'
-require 'agentx/http/session'
+require 'agentx/web/history'
+require 'agentx/web/request'
+require 'agentx/web/response'
+require 'agentx/web/cache'
+require 'agentx/web/session'
 
 module AgentX
   def self.root
@@ -33,7 +33,7 @@ module AgentX
   end
 
   def self.session
-    @session ||= Http::Session.new
+    @session ||= Web::Session.new
   end
 
   def self.[](*args)

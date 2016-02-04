@@ -1,6 +1,6 @@
 
 module AgentX
-  module Http
+  module Web
 
     class Response
       attr_reader :code, :body, :headers

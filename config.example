@@ -12,6 +12,6 @@
 # Example of defining a session for quick use:
 
 # def session
-#   @session ||= AgentX::Http::Session.new('https://www.google.com')
+#   @session ||= AgentX::Web::Session.new('https://www.google.com')
 # end
 

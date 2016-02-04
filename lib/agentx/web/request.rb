@@ -1,6 +1,6 @@
 
 module AgentX
-  module Http
+  module Web
 
     class Request
       attr_reader :url, :method

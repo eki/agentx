@@ -1,6 +1,6 @@
 
 module AgentX
-  module Http
+  module Web
     class Cache
       def self.store_path
         return @store_path if @store_path
