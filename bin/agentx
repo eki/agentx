@@ -61,6 +61,13 @@ if options[:interactive]
   config_dir  = File.dirname(options[:config])
   config_file = File.basename(options[:config])
 
+  class NullLogger < Logger
+    def initialize(*args); end
+    def add(*args, &block); end
+  end
+
+  Listen.logger = NullLogger.new
+
   listener = Listen.to(config_dir, only: /^#{config_file}$/) do |m,a,r|
     console.load_config
   end
