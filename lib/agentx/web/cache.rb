@@ -2,22 +2,6 @@
 module AgentX
   module Web
     class Cache
-      def self.store_path
-        return @store_path if @store_path
-
-        @store_path = File.join(AgentX.root, 'cache')
-
-        unless Dir.exists?(@store_path)
-          Dir.mkdir(@store_path)
-        end
-
-        @store_path
-      end
-
-      def self.path(request)
-        File.join(store_path, "#{request.cache_key}.json")
-      end
-
       def self.db
         @db ||= Database.new
       end
