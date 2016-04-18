@@ -92,10 +92,6 @@ Or install it yourself as:
 
     $ gem install agentx
 
-## Usage
-
-TODO: Write some documentation!
-
 ## Contributing
 
 1. Fork it ( https://github.com/eki/agentx/fork )
